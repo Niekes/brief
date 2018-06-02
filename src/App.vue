@@ -2,12 +2,12 @@
     <div class="container my-4">
         <div class="row mb-3">
             <div id="image" class="offset-6 col-6 mb-3">
-                <img class="img-thumbnail float-right" style="max-height: 200px" src="http://via.placeholder.com/200x200?text=No+image+selected">
+                <img class="img-thumbnail float-right" style="max-height: 200px" src="static/img/placeholder.jpg">
             </div>
             <div class="offset-6 col-6">
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile" v-on:change="encodeImageFileAsURL($event)" accept="image/jpeg">
-                    <label class="custom-file-label" for="customFile">Choose image (only jpeg & aspect ratio 1:1)</label>
+                    <label class="custom-file-label" for="customFile">Choose image (only jpg & aspect ratio 1:1)</label>
                 </div>
             </div>
         </div>
