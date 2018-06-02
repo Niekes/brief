@@ -2,7 +2,7 @@
     <div class="container my-4">
         <div class="row mb-3">
             <div id="image" class="offset-6 col-6 mb-3">
-                <img class="img-thumbnail float-right" style="max-height: 200px" src="static/img/placeholder.jpg">
+                <img class="img-thumbnail float-right" src="static/img/placeholder.jpg">
             </div>
             <div class="offset-6 col-6">
                 <div class="custom-file">
@@ -85,10 +85,13 @@ export default {
             var filesSelected = e.target.files;
             var that          = this;
             if (filesSelected.length){
+                var imgEl      = document.getElementById('image');
                 var fileToLoad = filesSelected[0];
                 var fileReader = new FileReader();
 
                 fileReader.onload = function(fileLoadedEvent){
+                    imgEl.innerHTML = null;
+
                     var srcData  = fileLoadedEvent.target.result;
                     var newImage = document.createElement('img');
 
@@ -99,7 +102,7 @@ export default {
                         src: srcData
                     };
 
-                    document.getElementById('image').innerHTML = newImage.outerHTML;
+                    imgEl.innerHTML = newImage.outerHTML;
 
                     newImage.onload = function(){
                         that.image   = {
@@ -131,7 +134,13 @@ button.close{
 }
 
 #image{
-    max-height: 200px;
+    width: 200px;
+    height: 200px;
+}
+
+#image img{
+    width: 200px;
+    height: 200px;
 }
 
 header.container-fluid{
