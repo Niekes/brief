@@ -1,5 +1,16 @@
 <template>
     <div class="container my-4">
+        <div class="row mb-3">
+            <div id="image" class="offset-6 col-6 mb-3">
+                <img class="img-thumbnail float-right" style="max-height: 200px" src="http://via.placeholder.com/200x200?text=No+image+selected">
+            </div>
+            <div class="offset-6 col-6">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" v-on:change="encodeImageFileAsURL($event)" accept="image/jpeg">
+                    <label class="custom-file-label" for="customFile">Choose image (only jpeg & aspect ratio 1:1)</label>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <briefInput :css="'col-6'" :name="'address'" :placeholder="'add the recipient here'" :rows="5" v-on:open-modal="openModal"></briefInput>
             <briefInput :css="'col-6'" :textareacss="'text-right'" :name="'additional information'" :placeholder="'add additional information here (e.g date)'" :rows="5" v-on:open-modal="openModal"></briefInput>
@@ -39,6 +50,7 @@ export default {
     data(){
         return {
             modalIsOpen : false,
+            image       : null,
             file        : 'brief'
         };
     },
@@ -62,7 +74,43 @@ export default {
             this.$children.forEach((d) => {
                 vars[d.name] = d.briefInputValue;
             });
+
+            if (this.image){
+                vars.image = this.image;
+            }
+
             createPdf(vars, this.file);
+        },
+        encodeImageFileAsURL(e){
+            var filesSelected = e.target.files;
+            var that          = this;
+            if (filesSelected.length){
+                var fileToLoad = filesSelected[0];
+                var fileReader = new FileReader();
+
+                fileReader.onload = function(fileLoadedEvent){
+                    var srcData  = fileLoadedEvent.target.result;
+                    var newImage = document.createElement('img');
+
+                    newImage.setAttribute('class', 'img-thumbnail float-right');
+                    newImage.style.maxHeight = '200px';
+                    newImage.src = srcData;
+                    that.image   = {
+                        src: srcData
+                    };
+
+                    document.getElementById('image').innerHTML = newImage.outerHTML;
+
+                    newImage.onload = function(){
+                        that.image   = {
+                            src    : srcData,
+                            width  : this.width,
+                            height : this.height
+                        };
+                    };
+                };
+                fileReader.readAsDataURL(fileToLoad);
+            }
         }
     }
 };
@@ -81,6 +129,11 @@ button.close{
     outline: none !important;
     box-shadow: none !important;
 }
+
+#image{
+    max-height: 200px;
+}
+
 header.container-fluid{
     background: rgba(179,220,237,1);
     background: -moz-linear-gradient(45deg, rgba(179,220,237,1) 0%, rgba(41,184,229,1) 15%, rgba(188,224,238,1) 100%);

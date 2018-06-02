@@ -21,6 +21,11 @@ export function createPdf(vars, name){
     // SET FONT
     doc.setFont('lato-light');
 
+    // IMAGE
+    if (vars.image){
+        doc.addImage(vars.image.src, 'JPEG', width - margin.right - 30, margin.top, 30, 30);
+    }
+
     // ADDRESS
     if (vars.address){
         doc.text('' || vars.address, margin.left, 62.7 + fontPadding);
@@ -59,7 +64,7 @@ export function createPdf(vars, name){
     // doc.line(20, 62.7, 105, 62.7);
 
     // RESPONSE INFORMATION
-    // doc.roundedRect(125, 50, 75, 40, 1, 1);
+    doc.roundedRect(125, 50, 75, 40, 1, 1);
 
     // TEXT BOX
     // doc.roundedRect(20, 98.46, width - margin.left - margin.right, 155, 1, 1);
