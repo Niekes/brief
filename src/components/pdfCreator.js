@@ -64,7 +64,7 @@ export function createPdf(vars, name){
     // doc.line(20, 62.7, 105, 62.7);
 
     // RESPONSE INFORMATION
-    doc.roundedRect(125, 50, 75, 40, 1, 1);
+    // doc.roundedRect(125, 50, 75, 40, 1, 1);
 
     // TEXT BOX
     // doc.roundedRect(20, 98.46, width - margin.left - margin.right, 155, 1, 1);
