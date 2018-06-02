@@ -121,7 +121,9 @@ const webpackConfig = merge(baseWebpackConfig, {
         ignore: ['.*']
       }
     ]),
-    new OfflinePlugin()
+    new OfflinePlugin({
+        autoUpdate: true
+    })
   ]
 })
 
