@@ -22,13 +22,13 @@
             <briefInput :css="'col-12'" :name="'text'" :placeholder="'add the text here'" :rows="10" v-on:open-modal="openModal"></briefInput>
         </div>
         <div class="row mt-3 mb-5">
-            <div class="col-8 pr-0">
+            <div class="col-6 pr-0">
                 <button v-on:click="saveDocument" class="btn btn-block btn-dark" style="border-radius: 4px 0 0 4px;">save as</button>
             </div>
-            <div class="col-3 px-0">
+            <div class="col-4 px-0">
                 <input v-model="file" class="form-control text-center" type="name" name="file" style="border-radius: 0;border-left: 0;border-right: 0">
             </div>
-            <div class="col-1 pl-0">
+            <div class="col-2 pl-0">
                 <label class="d-flex justify-content-center align-items-center bg-light" style="height:100%;border-radius: 0 4px 4px 0;border:1px solid #ced4da">.pdf</label>
             </div>
         </div>
@@ -143,6 +143,10 @@ button.close{
     height: 200px;
 }
 
+.custom-file-label{
+    overflow: hidden;
+}
+
 header.container-fluid{
     background: rgba(179,220,237,1);
     background: -moz-linear-gradient(45deg, rgba(179,220,237,1) 0%, rgba(41,184,229,1) 15%, rgba(188,224,238,1) 100%);
@@ -162,7 +166,7 @@ header.container-fluid{
 }
 
 .fadein{
-    opacity: o;
+    opacity: 0;
     animation-name: fadein;
     animation-duration: 340ms;
     animation-fill-mode: forwards;

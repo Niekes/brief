@@ -73,7 +73,7 @@ export default {
         left: 0;
         right: 0;
         margin: auto;
-        z-index: 1070;
+        z-index: 107000000000;
         background-color: rgba(255,255,255,.9);
     }
 

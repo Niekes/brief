@@ -41,7 +41,7 @@ export function loadValues(target, callback){
     }, false);
 
     div.style.position   = 'fixed';
-    div.style.zIndex     = 1070;
+    div.style.zIndex     = 107000000000;
     div.style.top        = 0;
     div.style.left       = 0;
     div.style.width      = '100%';
