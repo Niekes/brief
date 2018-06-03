@@ -12,14 +12,14 @@
             </div>
         </div>
         <div class="row">
-            <briefInput :css="'col-6'" :name="'address'" :placeholder="'add the recipient here'" :rows="5" v-on:open-modal="openModal"></briefInput>
+            <briefInput :css="'col-6'" :name="'address'" :placeholder="'add recipient here'" :rows="5" v-on:open-modal="openModal"></briefInput>
             <briefInput :css="'col-6'" :textareacss="'text-right'" :name="'additional information'" :placeholder="'add additional information here (e.g date)'" :rows="5" v-on:open-modal="openModal"></briefInput>
         </div>
         <div class="row">
-            <briefInput :css="'col-12'" :name="'reference'" :placeholder="'add the reference here'" :rows="1" v-on:open-modal="openModal"></briefInput>
+            <briefInput :css="'col-12'" :name="'reference'" :placeholder="'add reference here'" :rows="1" v-on:open-modal="openModal"></briefInput>
         </div>
         <div class="row">
-            <briefInput :css="'col-12'" :name="'text'" :placeholder="'add the text here'" :rows="10" v-on:open-modal="openModal"></briefInput>
+            <briefInput :css="'col-12'" :name="'text'" :placeholder="'add text here'" :rows="10" v-on:open-modal="openModal"></briefInput>
         </div>
         <div class="row mt-3 mb-5">
             <div class="col-6 pr-0">
