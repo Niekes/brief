@@ -1,10 +1,10 @@
 <template>
     <div class="container my-4">
         <div class="row mb-3">
-            <div id="image" class="offset-6 col-6 mb-3">
+            <div id="image" class="col-12 mb-3">
                 <img class="img-thumbnail float-right" src="static/img/placeholder.jpg">
             </div>
-            <div class="offset-6 col-6">
+            <div class="offset-md-6 col-md-6 col-12">
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile" v-on:change="encodeImageFileAsURL($event)" accept="image/jpeg">
                     <label class="custom-file-label" for="customFile">Choose image (only jpg & aspect ratio 1:1)</label>
@@ -123,6 +123,7 @@ export default {
 @import './assets/css/bootstrap.css';
 @import './assets/css/hint.css';
 @import './assets/css/fork-awesome.css';
+
 body{
     overflow-x: hidden;
 }
