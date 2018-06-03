@@ -123,6 +123,10 @@ export default {
 @import './assets/css/bootstrap.css';
 @import './assets/css/hint.css';
 @import './assets/css/fork-awesome.css';
+body{
+    overflow-x: hidden;
+}
+
 #app {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
