@@ -11,7 +11,6 @@
   <a href="https://github.com/Niekes/brief"><img src="https://img.shields.io/github/stars/Niekes/brief" alt="GitHub stars"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-blue" alt="TypeScript"></a>
   <a href="https://en.wikipedia.org/wiki/DIN_5008"><img src="https://img.shields.io/badge/DIN_5008-supported-blue" alt="DIN 5008"></a>
-  <img src="https://img.shields.io/badge/backend-none-brightgreen" alt="Client-side only">
 </p>
 
 <p align="center">
