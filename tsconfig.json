@@ -23,6 +23,12 @@
     "paths": { "@/*": ["./src/*"] },
     "types": ["vite/client", "node", "react", "react-dom"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "vitest.config.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts"
+  ],
   "exclude": ["node_modules"]
 }

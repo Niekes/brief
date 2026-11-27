@@ -55,8 +55,10 @@ export default function App() {
         load={load}
       />
       <ExportPanel status={status} onExport={() => void exportPdf()} />
-      {loading ? <p className="mt-2 text-sm text-gray-500">Vorschau wird generiert…</p> : null}
-      {previewError ? <p className="mt-2 text-sm text-red-600">{previewError}</p> : null}
+      {loading ? (
+        <p className="mt-2 text-sm text-muted-foreground">Vorschau wird generiert…</p>
+      ) : null}
+      {previewError ? <p className="mt-2 text-sm text-destructive">{previewError}</p> : null}
       <div className="mt-4">
         <Preview bytes={previewBytes} />
       </div>

@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r \".tool_input.file_path // empty\" | grep -q \"src/components/ui/\" && jq -n \"{hookSpecificOutput:{hookEventName:\\\"PreToolUse\\\",permissionDecision:\\\"deny\\\",permissionDecisionReason:\\\"src/components/ui/ holds untouched shadcn primitives (docs/adr/0001). Change them only with: pnpm dlx shadcn@latest add <name> --overwrite\\\"}}\" || true"
+          }
+        ]
+      }
+    ]
+  }
+}

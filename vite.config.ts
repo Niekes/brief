@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
   server: { port: 3000 },
+  fmt: { ignorePatterns: ["src/components/ui/**"] },
   lint: {
     plugins: ["oxc", "typescript", "unicorn", "react", "import", "jsx-a11y"],
     categories: { correctness: "error" },
@@ -23,6 +24,17 @@ export default defineConfig({
       "typescript/no-floating-promises": "error",
       "react/rules-of-hooks": "error",
       "react/exhaustive-deps": "error",
+      // Form controls only via the app-* components (docs/adr/0001).
+      "react/forbid-elements": [
+        "error",
+        {
+          forbid: ["button", "input", "select", "textarea", "label"].map((element) => ({
+            element,
+            message: "Use an App* component from src/components/app-*.tsx.",
+          })),
+        },
+      ],
     },
+    overrides: [{ files: ["src/components/app-*.tsx"], rules: { "react/forbid-elements": "off" } }],
   },
 });

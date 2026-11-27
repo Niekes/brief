@@ -83,6 +83,7 @@ pnpm dev
 - Takumi/pdfcn turns the document into real PDF bytes. The live preview renders a debounced generation; **export always renders fresh bytes**, so a download can never contain a stale preview.
 - pdf.js paints those bytes onto a canvas at scale 1.0 — the preview is 1:1 with the exported PDF.
 - Saved snippets are field values in IndexedDB via `idb-keyval`.
+- The UI uses untouched [shadcn](https://ui.shadcn.com/) primitives in `src/components/ui/`, and they are only reachable through the `App*` components in `src/components/app-*.tsx` ([ADR 0001](docs/adr/0001-shadcn-primitives-behind-app-components.md)). The UI font, Outfit, is bundled with the app instead of loaded from a font CDN.
 
 ## Quality gates
 
@@ -90,13 +91,13 @@ pnpm dev
 | ---------------- | ----------------------------------------------------------------------- | ---------------------------------- |
 | Typecheck        | `pnpm typecheck`                                                        | ✓                                  |
 | Format + lint    | `vp check`                                                              | ✓                                  |
-| Tests + coverage | `pnpm exec vitest run --coverage`                                       | 47 tests, 100 % of included source |
+| Tests + coverage | `pnpm exec vitest run --coverage`                                       | 48 tests, 100 % of included source |
 | Dead code        | `fallow dead-code`                                                      | no findings                        |
 | Architecture     | `fallow architecture`                                                   | no findings                        |
 | Health           | `fallow health --coverage coverage/coverage-final.json --min-score 100` | 100 A                              |
 | Production build | `pnpm build`                                                            | ✓                                  |
 
-`pnpm verify` runs the typecheck, lint, tests with coverage, `fallow dead-code` and `fallow dupes`. `pnpm fallow` adds the audit and health passes; `vp check` is vite-plus' format + lint command.
+`pnpm verify` runs the typecheck, lint, tests with coverage, `fallow dead-code`, `fallow dupes` and `fallow architecture`. `pnpm fallow` adds the audit and health passes; `vp check` is vite-plus' format + lint command.
 
 ## Star History
 

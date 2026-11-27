@@ -28,6 +28,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import App from "./App";
 
+// Radix opens menus and selects on pointerdown, not click.
+const open = (trigger: HTMLElement) =>
+  fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false, pointerType: "mouse" });
+const loadMenus = () => screen.getAllByRole("button", { name: "Laden…" });
+
 const createObjectURL = vi.fn(() => "blob:url");
 const revokeObjectURL = vi.fn();
 URL.createObjectURL = createObjectURL;
@@ -45,21 +50,23 @@ describe("App", () => {
   it("renders heading and standard selector", () => {
     render(<App />);
     expect(screen.getByText("brief")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("DIN 5008")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Norm" })).toHaveTextContent("DIN 5008");
   });
 
   it("types into fields", () => {
     render(<App />);
-    const ta = document.querySelector("textarea") as HTMLTextAreaElement;
+    const ta = screen.getByLabelText("address");
     fireEvent.change(ta, { target: { value: "hello" } });
-    expect(ta.value).toBe("hello");
+    expect(ta).toHaveValue("hello");
   });
 
   it("changes the standard", () => {
     render(<App />);
-    const select = screen.getByDisplayValue("DIN 5008");
-    fireEvent.change(select, { target: { value: "din-5008" } });
-    expect(select).toHaveValue("din-5008");
+    const select = screen.getByRole("combobox", { name: "Norm" });
+    open(select);
+    fireEvent.click(screen.getByRole("option", { name: "DIN 5008" }));
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(select).toHaveTextContent("DIN 5008");
   });
 
   it("handles image upload", async () => {
@@ -86,7 +93,7 @@ describe("App", () => {
 
     try {
       render(<App />);
-      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const input = screen.getByLabelText("Logo");
       const file = new File(["x"], "a.jpg", { type: "image/jpeg" });
       fireEvent.change(input, { target: { files: [file] } });
 
@@ -130,7 +137,7 @@ describe("App", () => {
 
     try {
       render(<App />);
-      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const input = screen.getByLabelText("Logo");
       const file = new File(["x"], "a.jpg", { type: "image/jpeg" });
       fireEvent.change(input, { target: { files: [file] } });
 
@@ -151,33 +158,43 @@ describe("App", () => {
   it("saves a snippet with a name", async () => {
     const { saveSnippet } = await import("@/lib/storage/snippets");
     render(<App />);
-    await waitFor(() => expect(screen.getAllByText("k1").length).toBeGreaterThan(0));
-    const ta = document.querySelector("textarea") as HTMLTextAreaElement;
-    fireEvent.change(ta, { target: { value: "hello" } });
-    fireEvent.click(screen.getAllByText("Speichern")[0]!);
+    await waitFor(() => expect(loadMenus()[0]).toBeEnabled());
+    fireEvent.change(screen.getByLabelText("address"), { target: { value: "hello" } });
+    fireEvent.click(screen.getAllByRole("button", { name: "Speichern" })[0]!);
 
     await waitFor(() => expect(saveSnippet).toHaveBeenCalledWith("address", "mykey", "hello"));
-    expect(screen.getAllByText("mykey").length).toBeGreaterThan(0);
+    open(loadMenus()[0]!);
+    expect(await screen.findByRole("menuitem", { name: "mykey" })).toBeInTheDocument();
   });
 
   it("does not save an empty snippet", async () => {
     const { saveSnippet } = await import("@/lib/storage/snippets");
     render(<App />);
-    fireEvent.click(screen.getAllByText("Speichern")[0]!);
+    fireEvent.click(screen.getAllByRole("button", { name: "Speichern" })[0]!);
     await waitFor(() => expect(saveSnippet).not.toHaveBeenCalled());
   });
 
   it("loads a snippet into the field", async () => {
     const { loadSnippet } = await import("@/lib/storage/snippets");
     render(<App />);
-    await waitFor(() => expect(screen.getAllByText("k1").length).toBeGreaterThan(0));
-    const loadSelect = screen.getAllByRole("combobox")[1]!;
-    fireEvent.change(loadSelect, { target: { value: "k1" } });
+    await waitFor(() => expect(loadMenus()[0]).toBeEnabled());
+    open(loadMenus()[0]!);
+    fireEvent.click(await screen.findByRole("menuitem", { name: "k1" }));
 
     await waitFor(() => expect(loadSnippet).toHaveBeenCalledWith("address", "k1"));
-    await waitFor(() =>
-      expect((document.querySelector("textarea") as HTMLTextAreaElement).value).toBe("loaded"),
-    );
+    await waitFor(() => expect(screen.getByLabelText("address")).toHaveValue("loaded"));
+  });
+
+  it("disables Laden… for fields without snippets", async () => {
+    const { listSnippetKeys } = await import("@/lib/storage/snippets");
+    (listSnippetKeys as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    try {
+      render(<App />);
+      await waitFor(() => expect(listSnippetKeys).toHaveBeenCalledTimes(4));
+      for (const menu of loadMenus()) expect(menu).toBeDisabled();
+    } finally {
+      (listSnippetKeys as ReturnType<typeof vi.fn>).mockResolvedValue(["k1"]);
+    }
   });
 
   it("exports a fresh pdf", async () => {
@@ -205,7 +222,7 @@ describe("App", () => {
 
   it("changes the filename", () => {
     render(<App />);
-    const input = screen.getByDisplayValue("brief");
+    const input = screen.getByLabelText("Dateiname");
     fireEvent.change(input, { target: { value: "x" } });
     expect(input).toHaveValue("x");
   });
