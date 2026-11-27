@@ -6,6 +6,14 @@ import { vi } from "vitest";
 vi.mock("@/features/letter/render", () => ({
   renderLetterToBytes: vi.fn().mockResolvedValue(new Uint8Array([1])),
 }));
+const previewState = {
+  bytes: null as Uint8Array | null,
+  loading: true,
+  error: "preview-err" as string | null,
+};
+vi.mock("@/features/letter/usePdfPreview", () => ({
+  usePdfPreview: () => previewState,
+}));
 vi.mock("@/lib/storage/snippets", () => ({
   saveSnippet: vi.fn().mockResolvedValue(undefined),
   loadSnippet: vi.fn().mockResolvedValue("loaded"),
@@ -68,6 +76,14 @@ describe("App", () => {
     render(<App />);
     const input = screen.getByDisplayValue("brief");
     fireEvent.change(input, { target: { value: "x" } });
+  });
+
+  it("renders without loading/error", () => {
+    previewState.loading = false;
+    previewState.error = null;
+    render(<App />);
+    previewState.loading = true;
+    previewState.error = "preview-err";
   });
 
   it("exports pdf error path", async () => {

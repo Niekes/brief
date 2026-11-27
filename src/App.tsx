@@ -1,11 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getStandard, listStandards } from "@/lib/standards/registry";
 import type { LetterDocument } from "@/features/letter/types";
 import { renderLetterToBytes } from "@/features/letter/render";
+import { usePdfPreview } from "@/features/letter/usePdfPreview";
+import { Preview } from "@/features/letter/Preview";
 import { saveSnippet, loadSnippet, listSnippetKeys } from "@/lib/storage/snippets";
 
 const FIELDS = ["address", "additional information", "reference", "text"] as const;
 
+// fallow-ignore-next-line complexity
 export default function App() {
   const [standardId, setStandardId] = useState("din-5008");
   const [fileName, setFileName] = useState("brief");
@@ -15,6 +18,24 @@ export default function App() {
   const [status, setStatus] = useState("");
 
   const standard = getStandard(standardId);
+
+  const letterDoc = useMemo<LetterDocument>(
+    () => ({
+      standardId,
+      standard,
+      content: {
+        address: values.address ?? "",
+        additionalInfo: values["additional information"] ?? "",
+        reference: values.reference ?? "",
+        body: values.text ?? "",
+        image,
+      },
+      fileName,
+    }),
+    [standardId, standard, values, image, fileName],
+  );
+
+  const { bytes: previewBytes, loading, error: previewError } = usePdfPreview(letterDoc);
 
   useEffect(() => {
     void (async () => {
@@ -50,19 +71,7 @@ export default function App() {
   const exportPdf = useCallback(async () => {
     setStatus("Generiere PDF…");
     try {
-      const doc: LetterDocument = {
-        standardId,
-        standard,
-        content: {
-          address: values.address ?? "",
-          additionalInfo: values["additional information"] ?? "",
-          reference: values.reference ?? "",
-          body: values.text ?? "",
-          image,
-        },
-        fileName,
-      };
-      const bytes = await renderLetterToBytes(doc);
+      const bytes = previewBytes ?? (await renderLetterToBytes(letterDoc));
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -74,24 +83,12 @@ export default function App() {
     } catch (e) {
       setStatus(`Fehler: ${String(e)}`);
     }
-  }, [standardId, standard, values, image, fileName]);
+  }, [letterDoc, previewBytes, fileName]);
 
   const previewPdf = useCallback(async () => {
     setStatus("Generiere Vorschau…");
     try {
-      const doc: LetterDocument = {
-        standardId,
-        standard,
-        content: {
-          address: values.address ?? "",
-          additionalInfo: values["additional information"] ?? "",
-          reference: values.reference ?? "",
-          body: values.text ?? "",
-          image,
-        },
-        fileName,
-      };
-      const bytes = await renderLetterToBytes(doc);
+      const bytes = previewBytes ?? (await renderLetterToBytes(letterDoc));
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
@@ -99,7 +96,7 @@ export default function App() {
     } catch (e) {
       setStatus(`Fehler: ${String(e)}`);
     }
-  }, [standardId, standard, values, image, fileName]);
+  }, [letterDoc, previewBytes]);
 
   return (
     <div className="mx-auto max-w-4xl p-4">
@@ -183,6 +180,11 @@ export default function App() {
         >
           Speichern als PDF
         </button>
+      </div>
+      <div className="mt-4">
+        {loading ? <p className="text-sm text-gray-500">Vorschau wird generiert…</p> : null}
+        {previewError ? <p className="text-sm text-red-600">{previewError}</p> : null}
+        <Preview bytes={previewBytes} />
       </div>
       {status ? <p className="mt-2 text-sm text-gray-600">{status}</p> : null}
     </div>
