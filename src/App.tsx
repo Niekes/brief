@@ -1,23 +1,30 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { getStandard, listStandards } from "@/lib/standards/registry";
 import type { LetterDocument } from "@/features/letter/types";
 import { renderLetterToBytes } from "@/features/letter/render";
 import { usePdfPreview } from "@/features/letter/usePdfPreview";
+import { useSnippets } from "@/features/letter/useSnippets";
 import { Preview } from "@/features/letter/Preview";
-import { saveSnippet, loadSnippet, listSnippetKeys } from "@/lib/storage/snippets";
 
-const FIELDS = ["address", "additional information", "reference", "text"] as const;
-
-// fallow-ignore-next-line complexity
 export default function App() {
   const [standardId, setStandardId] = useState("din-5008");
   const [fileName, setFileName] = useState("brief");
-  const [values, setValues] = useState<Record<string, string>>({});
   const [image, setImage] = useState<{ src: string; width: number; height: number } | null>(null);
-  const [snippetKeys, setSnippetKeys] = useState<Record<string, string[]>>({});
   const [status, setStatus] = useState("");
 
+  const { values, setValues, snippetKeys, save, load } = useSnippets();
   const standard = getStandard(standardId);
+
+  const handleImage = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const src = typeof e.target?.result === "string" ? e.target.result : "";
+      const img = new Image();
+      img.onload = () => setImage({ src, width: img.width, height: img.height });
+      img.src = src;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const letterDoc = useMemo<LetterDocument>(
     () => ({
@@ -37,41 +44,10 @@ export default function App() {
 
   const { bytes: previewBytes, loading, error: previewError } = usePdfPreview(letterDoc);
 
-  useEffect(() => {
-    void (async () => {
-      const keys: Record<string, string[]> = {};
-      for (const f of FIELDS) keys[f] = await listSnippetKeys(f);
-      setSnippetKeys(keys);
-    })();
-  }, []);
-
-  const handleImage = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const src = typeof e.target?.result === "string" ? e.target.result : "";
-      const img = new Image();
-      img.onload = () => setImage({ src, width: img.width, height: img.height });
-      img.src = src;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const saveSnip = async (field: string) => {
-    const key = window.prompt(`Name für Snippet (${field})?`);
-    if (!key || !values[field]) return;
-    await saveSnippet(field, key, values[field]);
-    setSnippetKeys((prev) => ({ ...prev, [field]: [...(prev[field] ?? []), key] }));
-  };
-
-  const loadSnip = async (field: string, key: string) => {
-    const v = await loadSnippet(field, key);
-    if (v !== undefined) setValues((prev) => ({ ...prev, [field]: v }));
-  };
-
   const exportPdf = useCallback(async () => {
     setStatus("Generiere PDF…");
     try {
-      const bytes = previewBytes ?? (await renderLetterToBytes(letterDoc));
+      const bytes = await renderLetterToBytes(letterDoc);
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -83,20 +59,7 @@ export default function App() {
     } catch (e) {
       setStatus(`Fehler: ${String(e)}`);
     }
-  }, [letterDoc, previewBytes, fileName]);
-
-  const previewPdf = useCallback(async () => {
-    setStatus("Generiere Vorschau…");
-    try {
-      const bytes = previewBytes ?? (await renderLetterToBytes(letterDoc));
-      const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      window.open(url, "_blank");
-      setStatus("Vorschau geöffnet.");
-    } catch (e) {
-      setStatus(`Fehler: ${String(e)}`);
-    }
-  }, [letterDoc, previewBytes]);
+  }, [letterDoc, fileName]);
 
   return (
     <div className="mx-auto max-w-4xl p-4">
@@ -132,7 +95,7 @@ export default function App() {
         />
       </div>
 
-      {FIELDS.map((field) => (
+      {(["address", "additional information", "reference", "text"] as const).map((field) => (
         <div key={field} className="mb-3">
           <label className="mb-1 block font-medium">{field}</label>
           <textarea
@@ -144,13 +107,13 @@ export default function App() {
           <div className="mt-1 flex gap-2">
             <button
               type="button"
-              onClick={() => void saveSnip(field)}
+              onClick={() => void save(field)}
               className="rounded bg-gray-200 px-2 py-1 text-sm"
             >
               Speichern
             </button>
             <select
-              onChange={(e) => e.target.value && void loadSnip(field, e.target.value)}
+              onChange={(e) => e.target.value && void load(field, e.target.value)}
               className="rounded border px-2 py-1 text-sm"
               defaultValue=""
             >
@@ -168,22 +131,15 @@ export default function App() {
       <div className="mt-4 flex gap-3">
         <button
           type="button"
-          onClick={() => void previewPdf()}
-          className="rounded bg-blue-600 px-4 py-2 text-white"
-        >
-          Vorschau (PDF)
-        </button>
-        <button
-          type="button"
           onClick={() => void exportPdf()}
           className="rounded bg-black px-4 py-2 text-white"
         >
           Speichern als PDF
         </button>
       </div>
+      {loading ? <p className="mt-2 text-sm text-gray-500">Vorschau wird generiert…</p> : null}
+      {previewError ? <p className="mt-2 text-sm text-red-600">{previewError}</p> : null}
       <div className="mt-4">
-        {loading ? <p className="text-sm text-gray-500">Vorschau wird generiert…</p> : null}
-        {previewError ? <p className="text-sm text-red-600">{previewError}</p> : null}
         <Preview bytes={previewBytes} />
       </div>
       {status ? <p className="mt-2 text-sm text-gray-600">{status}</p> : null}

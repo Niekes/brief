@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { LetterDocument } from "./types";
 import { renderLetterToBytes } from "./render";
 
@@ -12,19 +12,23 @@ export function usePdfPreview(doc: LetterDocument, delay = 300): UsePdfPreviewRe
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const requestId = useRef(0);
 
   useEffect(() => {
+    const id = ++requestId.current;
     const timer = setTimeout(() => {
       setLoading(true);
+      setError(null);
       void (async () => {
         try {
           const result = await renderLetterToBytes(doc);
+          if (requestId.current !== id) return;
           setBytes(result);
-          setError(null);
         } catch (e) {
+          if (requestId.current !== id) return;
           setError(String(e));
         } finally {
-          setLoading(false);
+          if (requestId.current === id) setLoading(false);
         }
       })();
     }, delay);

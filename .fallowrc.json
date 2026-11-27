@@ -19,7 +19,7 @@
       { "name": "app", "patterns": ["src/App.tsx"], "root": "." },
       {
         "name": "features",
-        "patterns": ["src/features/**", "src/features/**/*"],
+        "patterns": ["src/features/**"],
         "autoDiscover": ["src/features"],
         "root": "."
       },

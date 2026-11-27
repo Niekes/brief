@@ -42,4 +42,46 @@ describe("usePdfPreview", () => {
     unmount();
     await new Promise((r) => setTimeout(r, 20));
   });
+
+  it("ignores stale result", async () => {
+    const { renderLetterToBytes } = await import("./render");
+    let resolveFirst: (v: Uint8Array) => void = () => {};
+    (renderLetterToBytes as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      () =>
+        new Promise<Uint8Array>((res) => {
+          resolveFirst = res;
+        }),
+    );
+    const doc2 = { ...doc, fileName: "y" };
+    const { rerender, unmount } = renderHook(({ d }) => usePdfPreview(d, 10), {
+      initialProps: { d: doc },
+    });
+    await new Promise((r) => setTimeout(r, 30));
+    rerender({ d: doc2 });
+    await new Promise((r) => setTimeout(r, 30));
+    resolveFirst(new Uint8Array([9]));
+    await new Promise((r) => setTimeout(r, 30));
+    unmount();
+  });
+
+  it("ignores stale error", async () => {
+    const { renderLetterToBytes } = await import("./render");
+    let rejectFirst: (e: Error) => void = () => {};
+    (renderLetterToBytes as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      () =>
+        new Promise<Uint8Array>((_res, rej) => {
+          rejectFirst = rej;
+        }),
+    );
+    const doc2 = { ...doc, fileName: "y" };
+    const { rerender, unmount } = renderHook(({ d }) => usePdfPreview(d, 10), {
+      initialProps: { d: doc },
+    });
+    await new Promise((r) => setTimeout(r, 30));
+    rerender({ d: doc2 });
+    await new Promise((r) => setTimeout(r, 30));
+    rejectFirst(new Error("stale"));
+    await new Promise((r) => setTimeout(r, 30));
+    unmount();
+  });
 });

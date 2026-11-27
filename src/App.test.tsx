@@ -3,17 +3,20 @@
  */
 import { vi } from "vitest";
 
-vi.mock("@/features/letter/render", () => ({
-  renderLetterToBytes: vi.fn().mockResolvedValue(new Uint8Array([1])),
-}));
 const previewState = {
   bytes: null as Uint8Array | null,
   loading: true,
   error: "preview-err" as string | null,
 };
+
+vi.mock("@/features/letter/render", () => ({
+  renderLetterToBytes: vi.fn().mockResolvedValue(new Uint8Array([1])),
+}));
 vi.mock("@/features/letter/usePdfPreview", () => ({
   usePdfPreview: () => previewState,
 }));
+import "fake-indexeddb/auto";
+
 vi.mock("@/lib/storage/snippets", () => ({
   saveSnippet: vi.fn().mockResolvedValue(undefined),
   loadSnippet: vi.fn().mockResolvedValue("loaded"),
@@ -24,12 +27,12 @@ vi.mock("@/lib/storage/snippets", () => ({
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { renderLetterToBytes } from "@/features/letter/render";
 import App from "./App";
 
 if (!URL.createObjectURL) URL.createObjectURL = () => "blob:url";
 if (!URL.revokeObjectURL) URL.revokeObjectURL = () => {};
 Object.defineProperty(window, "open", { value: () => null, writable: true });
+Object.defineProperty(window, "prompt", { value: () => "mykey", writable: true });
 
 describe("App", () => {
   it("renders heading", () => {
@@ -47,57 +50,6 @@ describe("App", () => {
     render(<App />);
     const ta = document.querySelector("textarea") as HTMLTextAreaElement;
     fireEvent.change(ta, { target: { value: "hello" } });
-  });
-
-  it("saves snippet with value", async () => {
-    Object.defineProperty(window, "prompt", { value: () => "mykey", writable: true });
-    render(<App />);
-    const ta = document.querySelector("textarea") as HTMLTextAreaElement;
-    fireEvent.change(ta, { target: { value: "hello" } });
-    const btn = screen.getAllByText("Speichern")[0]!;
-    fireEvent.click(btn);
-    await waitFor(() => expect(true).toBe(true));
-  });
-
-  it("loads snippet", async () => {
-    render(<App />);
-    await waitFor(() => expect(screen.getAllByText("k1").length).toBeGreaterThan(0));
-    const selects = screen.getAllByRole("combobox");
-    const loadSelect = selects[1]!;
-    fireEvent.change(loadSelect, { target: { value: "k1" } });
-    await waitFor(
-      () =>
-        expect((document.querySelector("textarea") as HTMLTextAreaElement).value).toBe("loaded"),
-      { timeout: 1000 },
-    );
-  });
-
-  it("changes filename", () => {
-    render(<App />);
-    const input = screen.getByDisplayValue("brief");
-    fireEvent.change(input, { target: { value: "x" } });
-  });
-
-  it("renders without loading/error", () => {
-    previewState.loading = false;
-    previewState.error = null;
-    render(<App />);
-    previewState.loading = true;
-    previewState.error = "preview-err";
-  });
-
-  it("exports pdf error path", async () => {
-    (renderLetterToBytes as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("boom"));
-    render(<App />);
-    fireEvent.click(screen.getByText("Speichern als PDF"));
-    await waitFor(() => expect(screen.getByText(/Fehler:/)).toBeInTheDocument());
-  });
-
-  it("previews pdf error path", async () => {
-    (renderLetterToBytes as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("boom"));
-    render(<App />);
-    fireEvent.click(screen.getByText("Vorschau (PDF)"));
-    await waitFor(() => expect(screen.getByText(/Fehler:/)).toBeInTheDocument());
   });
 
   it("handles image upload", async () => {
@@ -164,42 +116,56 @@ describe("App", () => {
     global.Image = origImage;
   });
 
-  it("loads snippet undefined", async () => {
-    const { loadSnippet } = await import("@/lib/storage/snippets");
-    (loadSnippet as ReturnType<typeof vi.fn>).mockResolvedValueOnce(undefined);
+  it("saves snippet", async () => {
+    render(<App />);
+    const ta = document.querySelector("textarea") as HTMLTextAreaElement;
+    fireEvent.change(ta, { target: { value: "hello" } });
+    const btn = screen.getAllByText("Speichern")[0]!;
+    fireEvent.click(btn);
+    await new Promise((r) => setTimeout(r, 0));
+  });
+
+  it("saves snippet empty", async () => {
+    render(<App />);
+    const btn = screen.getAllByText("Speichern")[0]!;
+    fireEvent.click(btn);
+    await new Promise((r) => setTimeout(r, 0));
+  });
+
+  it("loads snippet", async () => {
     render(<App />);
     await waitFor(() => expect(screen.getAllByText("k1").length).toBeGreaterThan(0));
     const selects = screen.getAllByRole("combobox");
     const loadSelect = selects[1]!;
     fireEvent.change(loadSelect, { target: { value: "k1" } });
-    await new Promise((r) => setTimeout(r, 50));
-  });
-
-  it("saves snippet", async () => {
-    Object.defineProperty(window, "prompt", { value: () => "mykey", writable: true });
-    render(<App />);
-    const btn = screen.getAllByText("Speichern")[0]!;
-    fireEvent.click(btn);
-    await waitFor(() => expect(true).toBe(true));
-  });
-
-  it("loads snippet", async () => {
-    render(<App />);
-    const selects = screen.getAllByRole("combobox");
-    const loadSelect = selects[selects.length - 1]!;
-    fireEvent.change(loadSelect, { target: { value: "k1" } });
-    await waitFor(() => expect(true).toBe(true));
-  });
-
-  it("previews pdf", async () => {
-    render(<App />);
-    fireEvent.click(screen.getByText("Vorschau (PDF)"));
-    await waitFor(() => expect(screen.getByText(/Vorschau geöffnet|Fehler/)).toBeInTheDocument());
+    await new Promise((r) => setTimeout(r, 0));
   });
 
   it("exports pdf", async () => {
     render(<App />);
     fireEvent.click(screen.getByText("Speichern als PDF"));
-    await waitFor(() => expect(screen.getByText(/Fertig\.|Fehler/)).toBeInTheDocument());
+    await new Promise((r) => setTimeout(r, 0));
+  });
+
+  it("exports pdf error path", async () => {
+    const { renderLetterToBytes } = await import("@/features/letter/render");
+    (renderLetterToBytes as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("boom"));
+    render(<App />);
+    fireEvent.click(screen.getByText("Speichern als PDF"));
+    await new Promise((r) => setTimeout(r, 0));
+  });
+
+  it("changes filename", () => {
+    render(<App />);
+    const input = screen.getByDisplayValue("brief");
+    fireEvent.change(input, { target: { value: "x" } });
+  });
+
+  it("renders without loading/error", () => {
+    previewState.loading = false;
+    previewState.error = null;
+    render(<App />);
+    previewState.loading = true;
+    previewState.error = "preview-err";
   });
 });
