@@ -1,0 +1,63 @@
+{
+  "$schema": "https://fallow.tools/schemas/fallowrc.json",
+  "ignorePatterns": [".agents/**"],
+  "ignoreExports": [
+    { "file": "src/components/ui/**", "exports": ["*"] },
+    { "file": "src/components/pdf/**", "exports": ["*"] },
+    { "file": "src/lib/pdf-primitives.tsx", "exports": ["*"] },
+    { "file": "src/lib/resolve-color.ts", "exports": ["*"] },
+    { "file": "src/lib/storage/snippets.ts", "exports": ["*"] }
+  ],
+  "duplicates": { "threshold": 0.01 },
+  "rules": {
+    "unused-dev-dependencies": "error",
+    "type-only-dependencies": "error",
+    "test-only-dependencies": "error"
+  },
+  "boundaries": {
+    "zones": [
+      { "name": "app", "patterns": ["src/App.tsx"], "root": "." },
+      {
+        "name": "features",
+        "autoDiscover": ["src/features"],
+        "root": "."
+      },
+      {
+        "name": "shared",
+        "patterns": ["src/components/**", "src/lib/**", "src/const/**"],
+        "root": "."
+      }
+    ],
+    "rules": [
+      { "from": "app", "allow": ["features", "shared"] },
+      { "from": "features", "allow": ["shared"] },
+      { "from": "shared", "allow": [] }
+    ],
+    "coverage": {
+      "requireAllFiles": true,
+      "allowUnmatched": [
+        "vite.config.ts",
+        "vitest.config.ts",
+        "postcss.config.js",
+        "src/main.tsx",
+        "src/App.test.tsx",
+        "index.html",
+        "src/index.css",
+        "src/types/**"
+      ]
+    }
+  },
+  "health": {
+    "maxCyclomatic": 15,
+    "maxCognitive": 12,
+    "maxCrap": 20,
+    "ignore": [
+      "src/components/pdf/**",
+      "src/lib/pdf-primitives.tsx",
+      "src/lib/resolve-color.ts",
+      "src/lib/pdf-themes/**",
+      "**/*.test.ts",
+      "**/*.test.tsx"
+    ]
+  }
+}

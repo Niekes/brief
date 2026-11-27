@@ -1,30 +1,103 @@
-# brief
+<p align="center">
+  <a href="https://github.com/sponsors/niekes"><img src="https://img.shields.io/badge/Sponsor_brief-EA4AAA?logo=githubsponsors&logoColor=white&style=for-the-badge" alt="Sponsor brief"></a>
+</p>
 
-> A Vue.js project
+<p align="center">
+  <strong>A browser-based DIN 5008 letter writer: fill in the fields, drop in a JPEG logo, and export a pixel-exact PDF.</strong><br>
+  No account, no upload. Free to use, and kept alive by one maintainer and the people who sponsor the work.
+</p>
 
-## Build Setup
+<p align="center">
+  <a href="https://github.com/Niekes/brief"><img src="https://img.shields.io/github/stars/Niekes/brief" alt="GitHub stars"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-blue" alt="TypeScript"></a>
+  <a href="https://en.wikipedia.org/wiki/DIN_5008"><img src="https://img.shields.io/badge/DIN_5008-supported-blue" alt="DIN 5008"></a>
+</p>
 
-``` bash
-# install dependencies
-npm install
+<p align="center">
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB" alt="React 19"></a>
+  <a href="https://vite.dev/"><img src="https://img.shields.io/badge/Vite_8-646CFF?logo=vite&logoColor=white" alt="Vite 8"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Vitest_4-6E9F18?logo=vitest&logoColor=white" alt="Vitest 4"></a>
+  <a href="https://pnpm.io/"><img src="https://img.shields.io/badge/pnpm-12-F9AD00?logo=pnpm&logoColor=white" alt="pnpm"></a>
+  <a href="https://pdfcn.dev/"><img src="https://img.shields.io/badge/Takumi-PDF-1F6FEB" alt="Takumi"></a>
+  <a href="https://mozilla.github.io/pdf.js/"><img src="https://img.shields.io/badge/pdf.js-preview-1F6FEB" alt="pdf.js"></a>
+  <a href="https://fallow.tools/"><img src="https://img.shields.io/badge/fallow-1F6FEB" alt="fallow"></a>
+</p>
 
-# serve with hot reload at localhost:8080
-npm run dev
+<p align="center">
+  <a href="https://brief.niekes.com/">Live app</a> ·
+  <a href="https://github.com/Niekes/brief">Source</a> ·
+  <a href="https://github.com/Niekes/brief/issues">Issues</a>
+</p>
 
-# build for production with minification
-npm run build
+---
 
-# build for production and view the bundle analyzer report
-npm run build --report
+## Sponsor brief
 
-# run unit tests
-npm run unit
+**brief** is free, and it always will be. There is no company behind it — just one maintainer working in spare time — so the cost of keeping it alive is paid for by the people who depend on it.
 
-# run e2e tests
-npm run e2e
+If brief saves you time, [become a sponsor](https://github.com/sponsors/niekes).
 
-# run all tests
-npm test
+| Tier        | What you get                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------- |
+| **$5/mo**   | Your name in the [sponsors list](#sponsors) and my sincere thanks                           |
+| **$25/mo**  | The above, plus your logo in this README and priority issue triage                          |
+| **$100/mo** | The above, plus direct email access for feature requests and a mention in the release notes |
+
+Where the money goes:
+
+- **Issue triage and bug fixes.** Sponsorship buys a reply within a couple of days instead of whenever I get to it.
+- **A renderer that stays correct.** Keeping the DIN 5008 layout and the Takumi PDF output in shape as browser APIs and dependencies move on.
+- **A preview that tells the truth.** Keeping the pdf.js canvas at 1:1 with the exported PDF, even as pdf.js changes.
+- **Saved snippets.** Keeping IndexedDB storage and the save/load flow reliable as the fields change.
+- **Time for new work.** Whatever the community dreams up, when there's room for it.
+
+Prefer a one-off? The [sponsor page](https://github.com/sponsors/niekes) also takes one-time contributions.
+
+**Need a company sponsorship or an invoice?** [Get in touch](mailto:s@niekes.com).
+
+## Sponsors
+
+Thank you to the people who make this possible. Sponsors at $25/mo and above get their logo in this README; everyone gets their name below.
+
+<!-- New sponsors go below this line, one per line. -->
+
+## Using brief
+
+No install — it runs in the browser at [brief.niekes.com](https://brief.niekes.com/).
+
+Everything is client-side: letters and snippets never leave the browser.
+
+To work on it locally:
+
+```bash
+pnpm install
+pnpm dev
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+`pnpm dev` serves the app at `http://localhost:3000`. Build with `pnpm build` and run the local checks with `pnpm verify`.
+
+## How it works
+
+- The editor holds one `LetterDocument`: the chosen standard, the field values, an optional JPEG logo and the filename.
+- DIN 5008 is the first `LetterStandard`; page size and layout come from the norm, not from hardcoded values.
+- Takumi/pdfcn turns the document into real PDF bytes. The live preview renders a debounced generation; **export always renders fresh bytes**, so a download can never contain a stale preview.
+- pdf.js paints those bytes onto a canvas at scale 1.0 — the preview is 1:1 with the exported PDF.
+- Saved snippets are field values in IndexedDB via `idb-keyval`.
+
+## Quality gates
+
+| Gate             | Command                                                                 | Result                             |
+| ---------------- | ----------------------------------------------------------------------- | ---------------------------------- |
+| Typecheck        | `pnpm typecheck`                                                        | ✓                                  |
+| Format + lint    | `vp check`                                                              | ✓                                  |
+| Tests + coverage | `pnpm exec vitest run --coverage`                                       | 47 tests, 100 % of included source |
+| Dead code        | `fallow dead-code`                                                      | no findings                        |
+| Architecture     | `fallow architecture`                                                   | no findings                        |
+| Health           | `fallow health --coverage coverage/coverage-final.json --min-score 100` | 100 A                              |
+| Production build | `pnpm build`                                                            | ✓                                  |
+
+`pnpm verify` runs the typecheck, lint, tests with coverage, `fallow dead-code` and `fallow dupes`. `pnpm fallow` adds the audit and health passes; `vp check` is vite-plus' format + lint command.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=niekes/brief&type=date&legend=bottom-right)](https://www.star-history.com/#niekes/brief&type=date&legend=bottom-right)
