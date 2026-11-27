@@ -1,30 +1,32 @@
-# brief
+# React + TypeScript + Vite
 
-> A Vue.js project
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Build Setup
+Currently, two official plugins are available:
 
-``` bash
-# install dependencies
-npm install
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-# serve with hot reload at localhost:8080
-npm run dev
+## React Compiler
 
-# build for production with minification
-npm run build
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-# build for production and view the bundle analyzer report
-npm run build --report
+## Expanding the Oxlint configuration
 
-# run unit tests
-npm run unit
+If you are developing a production application, we recommend enabling type-aware lint rules by installing `tsrs` and editing `.oxlintrc.json`:
 
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
