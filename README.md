@@ -4,11 +4,11 @@
 
 <p align="center">
   <strong>A browser-based DIN 5008 letter writer: fill in the fields, drop in a JPEG logo, and export a pixel-exact PDF.</strong><br>
-  No account, no upload, no backend. Free and open source, kept alive by one maintainer and the people who sponsor the work.
+  No account, no upload. Free to use, and kept alive by one maintainer and the people who sponsor the work.
 </p>
 
 <p align="center">
-  <a href="https://github.com/Niekes/brief/stargazers"><img src="https://img.shields.io/github/stars/Niekes/brief" alt="GitHub stars"></a>
+  <a href="https://github.com/Niekes/brief"><img src="https://img.shields.io/github/stars/Niekes/brief" alt="GitHub stars"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-blue" alt="TypeScript"></a>
   <a href="https://en.wikipedia.org/wiki/DIN_5008"><img src="https://img.shields.io/badge/DIN_5008-supported-blue" alt="DIN 5008"></a>
   <img src="https://img.shields.io/badge/backend-none-brightgreen" alt="Client-side only">
@@ -47,9 +47,10 @@ If brief saves you time, [become a sponsor](https://github.com/sponsors/niekes).
 Where the money goes:
 
 - **Issue triage and bug fixes.** Sponsorship buys a reply within a couple of days instead of whenever I get to it.
-- **A renderer that stays correct.** Keeping the DIN 5008 layout, the Takumi PDF output and the pdf.js preview in shape as browser APIs and dependencies move on.
-- **More letter standards.** US and Portuguese norms behind the same `LetterStandard` interface.
-- **Time for new work.** Better snippet handling, more layout options, and whatever the community dreams up.
+- **A renderer that stays correct.** Keeping the DIN 5008 layout and the Takumi PDF output in shape as browser APIs and dependencies move on.
+- **A preview that tells the truth.** Keeping the pdf.js canvas at 1:1 with the exported PDF, even as pdf.js changes.
+- **Saved snippets.** Keeping IndexedDB storage and the save/load flow reliable as the fields change.
+- **Time for new work.** Whatever the community dreams up, when there's room for it.
 
 Prefer a one-off? The [sponsor page](https://github.com/sponsors/niekes) also takes one-time contributions.
 
@@ -74,7 +75,7 @@ pnpm install
 pnpm dev
 ```
 
-`pnpm dev` serves the app at `http://localhost:3000`. Build with `pnpm build` and run all checks with `pnpm verify`.
+`pnpm dev` serves the app at `http://localhost:3000`. Build with `pnpm build` and run the local checks with `pnpm verify`.
 
 ## How it works
 
@@ -86,17 +87,17 @@ pnpm dev
 
 ## Quality gates
 
-| Gate             | Command                                      | Result                   |
-| ---------------- | -------------------------------------------- | ------------------------ |
-| Typecheck        | `pnpm typecheck`                             | ✓                        |
-| Format + lint    | `vp check`                                   | ✓                        |
-| Tests + coverage | `pnpm exec vitest run --coverage`            | 47 tests, 100 % coverage |
-| Dead code        | `fallow dead-code`                           | no findings              |
-| Architecture     | `fallow architecture`                        | no findings              |
-| Health           | `fallow health --coverage … --min-score 100` | 100 A                    |
-| Production build | `pnpm build`                                 | ✓                        |
+| Gate             | Command                                                                 | Result                             |
+| ---------------- | ----------------------------------------------------------------------- | ---------------------------------- |
+| Typecheck        | `pnpm typecheck`                                                        | ✓                                  |
+| Format + lint    | `vp check`                                                              | ✓                                  |
+| Tests + coverage | `pnpm exec vitest run --coverage`                                       | 47 tests, 100 % of included source |
+| Dead code        | `fallow dead-code`                                                      | no findings                        |
+| Architecture     | `fallow architecture`                                                   | no findings                        |
+| Health           | `fallow health --coverage coverage/coverage-final.json --min-score 100` | 100 A                              |
+| Production build | `pnpm build`                                                            | ✓                                  |
 
-`pnpm verify` runs the typecheck, lint, tests with coverage and the fallow checks in one go.
+`pnpm verify` runs the typecheck, lint, tests with coverage, `fallow dead-code` and `fallow dupes`. `pnpm fallow` adds the audit and health passes; `vp check` is vite-plus' format + lint command.
 
 ## Star History
 
