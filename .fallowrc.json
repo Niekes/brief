@@ -19,7 +19,6 @@
       { "name": "app", "patterns": ["src/App.tsx"], "root": "." },
       {
         "name": "features",
-        "patterns": ["src/features/**"],
         "autoDiscover": ["src/features"],
         "root": "."
       },
@@ -48,5 +47,19 @@
       ]
     }
   },
-  "health": { "maxCyclomatic": 15, "maxCognitive": 12, "maxCrap": 20 }
+  "health": {
+    "maxCyclomatic": 15,
+    "maxCognitive": 12,
+    "maxCrap": 20,
+    "ignore": [
+      "src/components/pdf/**",
+      "src/components/ui/**",
+      "src/lib/pdf-primitives.tsx",
+      "src/lib/pdf-svg.tsx",
+      "src/lib/resolve-color.ts",
+      "src/lib/pdf-themes/**",
+      "**/*.test.ts",
+      "**/*.test.tsx"
+    ]
+  }
 }

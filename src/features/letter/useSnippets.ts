@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { listSnippetKeys, loadSnippet, saveSnippet } from "@/lib/storage/snippets";
 
-const FIELDS = ["address", "additional information", "reference", "text"] as const;
+export const FIELDS = ["address", "additional information", "reference", "text"] as const;
 
 export function useSnippets() {
   const [values, setValues] = useState<Record<string, string>>({});
