@@ -1,12 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
-import { FIELDS } from "./useSnippets";
+import { FIELDS, type LetterField } from "./fields";
 
 export interface LetterFieldsProps {
   values: Record<string, string>;
   setValues: Dispatch<SetStateAction<Record<string, string>>>;
   snippetKeys: Record<string, string[]>;
-  save: (field: string) => Promise<void>;
-  load: (field: string, key: string) => Promise<void>;
+  save: (field: LetterField) => Promise<void>;
+  load: (field: LetterField, key: string) => Promise<void>;
 }
 
 export function LetterFields({ values, setValues, snippetKeys, save, load }: LetterFieldsProps) {

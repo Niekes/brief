@@ -53,9 +53,7 @@
     "maxCrap": 20,
     "ignore": [
       "src/components/pdf/**",
-      "src/components/ui/**",
       "src/lib/pdf-primitives.tsx",
-      "src/lib/pdf-svg.tsx",
       "src/lib/resolve-color.ts",
       "src/lib/pdf-themes/**",
       "**/*.test.ts",

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import type { LetterDocument } from "./types";
 import { renderLetterToBytes } from "./render";
 
-export function useLetterExport(doc: LetterDocument, fileName: string) {
+export function useLetterExport(doc: LetterDocument) {
   const [status, setStatus] = useState("");
 
   const exportPdf = useCallback(async () => {
@@ -13,14 +13,14 @@ export function useLetterExport(doc: LetterDocument, fileName: string) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${fileName}.pdf`;
+      a.download = `${doc.fileName}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
       setStatus("Fertig.");
     } catch (e) {
       setStatus(`Fehler: ${String(e)}`);
     }
-  }, [doc, fileName]);
+  }, [doc]);
 
   return { status, exportPdf };
 }

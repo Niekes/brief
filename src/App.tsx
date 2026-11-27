@@ -18,8 +18,6 @@ export default function App() {
   const { values, setValues, snippetKeys, save, load } = useSnippets();
   const standard = getStandard(standardId);
 
-  const handleImage = (file: File) => readImage(file, setImage);
-
   const letterDoc = useMemo<LetterDocument>(
     () => ({
       standardId,
@@ -37,7 +35,7 @@ export default function App() {
   );
 
   const { bytes: previewBytes, loading, error: previewError } = usePdfPreview(letterDoc);
-  const { status, exportPdf } = useLetterExport(letterDoc, fileName);
+  const { status, exportPdf } = useLetterExport(letterDoc);
 
   return (
     <div className="mx-auto max-w-4xl p-4">
@@ -47,7 +45,7 @@ export default function App() {
         onStandardChange={setStandardId}
         fileName={fileName}
         onFileNameChange={setFileName}
-        onImage={handleImage}
+        onImage={(file) => readImage(file, setImage)}
       />
       <LetterFields
         values={values}

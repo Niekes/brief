@@ -8,26 +8,50 @@ vi.mock("@/lib/pdf/preview", () => ({
 }));
 
 import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Preview } from "./Preview";
 
 describe("Preview", () => {
-  it("renders canvas", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("renders a canvas", () => {
     render(<Preview bytes={null} />);
     expect(document.querySelector("canvas")).toBeTruthy();
   });
 
-  it("renders with bytes", async () => {
-    render(<Preview bytes={new Uint8Array([1])} />);
-    await new Promise((r) => setTimeout(r, 10));
-    expect(document.querySelector("canvas")).toBeTruthy();
-  });
-
-  it("handles render error", async () => {
+  it("attempts to render real pdf bytes", async () => {
     const { renderPdfToCanvas } = await import("@/lib/pdf/preview");
     render(<Preview bytes={new Uint8Array([1])} />);
-    await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => setTimeout(r, 10));
     expect(renderPdfToCanvas).toHaveBeenCalled();
-    expect(document.querySelector("canvas")).toBeTruthy();
+  });
+
+  it("clears the canvas on error", async () => {
+    const clearRect = vi.fn();
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      clearRect,
+    } as unknown as CanvasRenderingContext2D);
+    render(<Preview bytes={new Uint8Array([1])} />);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(clearRect).toHaveBeenCalled();
+  });
+
+  it("clears stale pixels when bytes are removed", async () => {
+    const clearRect = vi.fn();
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      clearRect,
+    } as unknown as CanvasRenderingContext2D);
+    const { rerender } = render(<Preview bytes={new Uint8Array([1])} />);
+    await new Promise((r) => setTimeout(r, 10));
+    clearRect.mockClear();
+    rerender(<Preview bytes={null} />);
+    const canvas = document.querySelector("canvas")!;
+    expect(clearRect).toHaveBeenCalledWith(0, 0, canvas.width, canvas.height);
   });
 });

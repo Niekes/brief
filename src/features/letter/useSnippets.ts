@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { listSnippetKeys, loadSnippet, saveSnippet } from "@/lib/storage/snippets";
-
-export const FIELDS = ["address", "additional information", "reference", "text"] as const;
+import { FIELDS, type LetterField } from "./fields";
 
 export function useSnippets() {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -15,14 +14,14 @@ export function useSnippets() {
     })();
   }, []);
 
-  const save = async (field: string) => {
+  const save = async (field: LetterField) => {
     const key = window.prompt(`Name für Snippet (${field})?`);
     if (!key || !values[field]) return;
     await saveSnippet(field, key, values[field]);
     setSnippetKeys((prev) => ({ ...prev, [field]: [...(prev[field] ?? []), key] }));
   };
 
-  const load = async (field: string, key: string) => {
+  const load = async (field: LetterField, key: string) => {
     const value = await loadSnippet(field, key);
     if (value !== undefined) setValues((prev) => ({ ...prev, [field]: value }));
   };
